@@ -139,12 +139,15 @@ class ArtaxService
      */
     private function generateCacheKey()
     {
+        $headers = ksort($this->headers);
+        $params = ksort($this->params);
+
         return md5(
             implode('|', [
                 $this->uri,
                 $this->method,
-                json_encode($this->headers),
-                json_encode($this->params),
+                json_encode($headers),
+                json_encode($params),
             ])
         );
     }
@@ -320,10 +323,11 @@ class ArtaxService
 
             // store response in cache
             if ($this->useCache) {
-                $this->cache->setItem($cacheKey, $response);
+                if ($this->cacheTtl) {
+                    $this->cache->getOptions()->setTtl($this->cacheTtl);
+                }
 
-                // TODO cache ttl (set timeout on specific cache key)
-                if ($this->cacheTtl) {}
+                $this->cache->setItem($cacheKey, $response);
             }
 
             // seeds
