@@ -356,7 +356,7 @@ class ArtaxService
      */
     public function setParams($params)
     {
-        $this->params = (array) $params;
+        $this->params = $this->cleanEmptyValueFromArray($params);
 
         return $this;
     }
@@ -590,5 +590,16 @@ class ArtaxService
         $this->method = 'DELETE';
 
         return $this->request();
+    }
+
+    /**
+     * @param mixed $params
+     * @return array
+     */
+    private function cleanEmptyValueFromArray($params)
+    {
+        return array_filter((array) $params, function($value) {
+            return !empty($value);
+        });
     }
 }
