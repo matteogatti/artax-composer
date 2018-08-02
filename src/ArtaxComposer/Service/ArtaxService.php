@@ -139,8 +139,8 @@ class ArtaxService
      */
     private function generateCacheKey()
     {
-        $headers = ksort($this->headers);
-        $params = ksort($this->params);
+        $headers = is_array($this->headers) ? ksort($this->headers) : $this->headers;
+        $params = is_array($this->params) ? ksort($this->params) : $this->params;
 
         return md5(
             implode('|', [
