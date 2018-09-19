@@ -78,8 +78,9 @@ class ArtaxService
     /**
      * ArtaxService constructor.
      *
-     * @param array                     $config
+     * @param array $config
      * @param AbstractCacheAdapter|null $cache
+     * @throws NotProvidedException
      */
     public function __construct($config, $cache = null)
     {
@@ -278,8 +279,10 @@ class ArtaxService
                 // if cached response is found, return it formatted
                 if ($this->cache->hasItem($cacheKey)) {
                     $response = $this->cache->getItem($cacheKey);
+                    
                     return $this->formatResponseToReturn($response);
                 }
+
             }
 
             // log time (START)
@@ -323,11 +326,11 @@ class ArtaxService
 
             // store response in cache
             if ($this->useCache) {
-                if ($this->cacheTtl) {
-                    $this->cache->getOptions()->setTtl($this->cacheTtl);
-                }
-
-                $this->cache->setItem($cacheKey, $response);
+                $this->setCacheItem(
+                    $cacheKey,
+                    $response,
+                    ['ttl' => $this->cacheTtl]
+                );
             }
 
             // seeds
@@ -605,5 +608,37 @@ class ArtaxService
         return array_filter((array) $params, function($value) {
             return !empty($value);
         });
+    }
+
+    /**
+     * Save item to cache
+     *
+     * @param string $key
+     * @param mixed $value
+     * @param array $options - Optional
+     *
+     * Options: ttl => Overwrite configured ttl with set value. Reverts to configured ttl once completed
+     */
+    private function setCacheItem($key, $value, $options = [])
+    {
+        try {
+
+            if (is_numeric($options['ttl'])) {
+                $old_ttl = $this->cache->getOptions()->getTtl();
+
+                $this->cache->getOptions()->setTtl((int) $options['ttl']);
+                $this->cache->setItem($key, $value);
+
+                // reset ttl
+                $this->cache->getOptions()->setTtl($old_ttl);
+
+                return;
+            }
+
+            $this->cache->setItem($key, $value);
+
+        } catch (\Exception $e) {
+            trigger_error($e->getMessage(), E_USER_WARNING);
+        }
     }
 }
