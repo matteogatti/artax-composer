@@ -603,7 +603,7 @@ class ArtaxService
     private function cleanEmptyValueFromArray($params)
     {
         return array_filter((array) $params, function($value) {
-            return !empty($value);
+            return is_bool($value) || !empty($value);
         });
     }
 
