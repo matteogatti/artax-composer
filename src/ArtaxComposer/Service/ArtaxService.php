@@ -276,7 +276,7 @@ class ArtaxService
                 // if cached response is found, return it formatted
                 if ($this->cache->hasItem($cacheKey)) {
                     $response = $this->cache->getItem($cacheKey);
-                    
+
                     return $this->formatResponseToReturn($response);
                 }
 
@@ -298,7 +298,7 @@ class ArtaxService
 
             // body
             if ($this->params != null) {
-                $this->adapter->setBody(json_encode($this->params));
+                $this->setParametersToRequest();
             }
 
             // log time (END)
@@ -339,6 +339,15 @@ class ArtaxService
         } catch (\Exception $error) {
             throw new \Exception($error);
         }
+    }
+
+    private function setParametersToRequest()
+    {
+        if ($this->method == 'GET') {
+            return $this->adapter->setUri(sprintf('%s?%s', $this->uri, http_build_query($this->params)));
+        }
+
+        return $this->adapter->setBody(json_encode($this->params));
     }
 
     /**
