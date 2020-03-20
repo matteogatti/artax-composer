@@ -612,7 +612,12 @@ class ArtaxService
     private function cleanEmptyValueFromArray($params)
     {
         return array_filter((array) $params, function($value) {
-            return is_bool($value) || !empty($value) || $value != 'null' || $value != 'none';
+            if (is_bool($value)) return true;
+            if ($value == 'null') return false;
+            if ($value == 'none') return false;
+            if (empty($value)) return false;
+
+            return true;
         });
     }
 
