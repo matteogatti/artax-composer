@@ -6,7 +6,7 @@ use Interop\Container\Exception\ContainerException;
 use Zend\Cache\Storage\Adapter\AbstractAdapter as AbstractCacheAdapter;
 use Zend\ServiceManager\Exception\ServiceNotCreatedException;
 use Zend\ServiceManager\Exception\ServiceNotFoundException;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use ArtaxComposer\Service\ArtaxService;
 
