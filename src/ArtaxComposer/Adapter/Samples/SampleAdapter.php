@@ -1,5 +1,5 @@
 <?php
-namespace ArtaxComposer\Adapter;
+namespace ArtaxComposer\Adapter\Samples;
 
 use Amp;
 use Amp\Http\Client\HttpClientBuilder as ArtaxClient;
@@ -8,21 +8,31 @@ use Amp\Http\Client\Response as ArtaxResponse;
 use Amp\Http\Client\SocketException as AmpSocketException;
 use Amp\Dns\DnsException as AmpResolutionException;
 use Amp\Socket\SocketException as NbsockSocketException;
+use ArtaxComposer\Adapter\AdapterInterface;
+use ArtaxComposer\Adapter\BaseAdapter;
 use ArtaxComposer\Exception\FlowException;
 use ArtaxComposer\Exception\NotProvidedException;
 
-class ArtaxAdapter extends BaseAdapter implements AdapterInterface
+class SampleAdapter extends BaseAdapter implements AdapterInterface
 {
+    const RESET_PARAMETERS = 'none';
+
     // max connection timeout
     const OP_MS_CONNECT_TIMEOUT = 15000;
 
+    // max body sizes
+    const OP_MAX_BODY_BYTES = 20971520;
+
     // max attempts for artax requests
-    const REQUEST_MAX_ATTEMPTS = 2;
+    const REQUEST_MAX_ATTEMPTS = 3;
 
     /**
      * @var ArtaxResponse
      */
     private $response;
+
+    /** @var int */
+    protected $executionTime;
 
     /**
      * Do the request (enabled multiple attempts)
@@ -37,8 +47,9 @@ class ArtaxAdapter extends BaseAdapter implements AdapterInterface
      */
     private function doArtaxRequest(Amp\Promise $request, $attempt = 1)
     {
-
         try {
+            $this->executionTime = microtime(true);
+
             /** @var ArtaxResponse $ampResponse */
             $this->response = Amp\Promise\wait($request);
         }
@@ -79,17 +90,33 @@ class ArtaxAdapter extends BaseAdapter implements AdapterInterface
             throw new NotProvidedException('URI must be provided in order to execute the request');
         }
 
+        // console command get wrong language parameter in import task
+        if (php_sapi_name() != "cli") {
+            $this->setAcceptLanguageParameter();
+        }
+
         $artaxClient = (new ArtaxClient())->build();
 
         $request = new ArtaxRequest($this->uri);
         $request->setTcpConnectTimeout(self::OP_MS_CONNECT_TIMEOUT);
+        $request->setBodySizeLimit(self::OP_MAX_BODY_BYTES);
 
         $request->setMethod($this->method);
         $request->setHeaders($this->headers);
 
-        if ($this->body != null) {
-            $request->setBody($this->body);
+        /** force reset parameters */
+        if ($this->body == '["none"]') {
+            $this->body = null;
         }
+
+        if (!empty($this->body)) {
+            /** dont send unnecessary informations for the BE */
+            if (isset($this->body['api_auth'])) {
+                unset($this->body['api_auth']);
+            }
+        }
+
+        $request->setBody($this->body);
 
         // make the request (first attempt)
         $this->doArtaxRequest($artaxClient->request($request));
@@ -111,9 +138,7 @@ class ArtaxAdapter extends BaseAdapter implements AdapterInterface
     }
 
     /**
-     * Body of the response
-     *
-     * @return string
+     * @return Amp\Promise|string
      * @throws FlowException
      */
     public function getResponseBody()
@@ -122,7 +147,21 @@ class ArtaxAdapter extends BaseAdapter implements AdapterInterface
             throw new FlowException('You have to call the request in order to obtain the body of the response');
         }
 
-        return json_decode($this->response->getBody(), true);
+        $response = -1;
+
+        $this->response->getBody()->read()->onResolve(function (\Throwable $error = null, $result = null) use (& $response) {
+            if ($error) {
+                throw new \Exception($error->getMessage());
+            }
+
+            $response = $result;
+        });
+
+        while ($response < 0) {
+            sleep(1);
+        }
+
+        return json_decode($response, true);
     }
 
     /**
@@ -161,5 +200,13 @@ class ArtaxAdapter extends BaseAdapter implements AdapterInterface
         }
 
         return $this->response->getHeader($header)[0];
+    }
+
+    private function setAcceptLanguageParameter()
+    {
+        if (empty($this->headers['Accept-Language'])) {
+            $this->headers['Accept-Language'] = 'it';
+        }
+
     }
 }

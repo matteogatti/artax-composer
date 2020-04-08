@@ -1,8 +1,12 @@
 <?php
 namespace ArtaxComposer\ServiceFactory;
 
+use Interop\Container\ContainerInterface;
+use Interop\Container\Exception\ContainerException;
 use Zend\Cache\Storage\Adapter\AbstractAdapter as AbstractCacheAdapter;
-use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\Exception\ServiceNotCreatedException;
+use Zend\ServiceManager\Exception\ServiceNotFoundException;
+use Zend\ServiceManager\Factory\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use ArtaxComposer\Service\ArtaxService;
 
@@ -45,6 +49,7 @@ class ArtaxServiceFactory implements FactoryInterface
      * @param ServiceLocatorInterface $serviceLocator
      *
      * @return ArtaxService
+     * @throws \ArtaxComposer\Exception\NotProvidedException
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
@@ -56,5 +61,24 @@ class ArtaxServiceFactory implements FactoryInterface
         $cache = $this->loadCache($config, $serviceLocator);
 
         return new ArtaxService($config, $cache);
+    }
+
+    /**
+     * Create an object
+     *
+     * @param  ContainerInterface $container
+     * @param  string $requestedName
+     * @param  null|array $options
+     *
+     * @return object
+     *
+     * @throws ServiceNotFoundException if unable to resolve the service.
+     * @throws ServiceNotCreatedException if an exception is raised when
+     *     creating a service.
+     * @throws ContainerException if any other error occurs
+     */
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    {
+        // TODO: Implement __invoke() method.
     }
 }
