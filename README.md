@@ -2,6 +2,8 @@
 
 ArtaxComposer is a [Zend Framework 2](https://github.com/zendframework/zendframework) service wrapper around the [amphp/artax](https://github.com/amphp/artax) client
 
+## Update
+08/04/2020 moved to https://amphp.org/http-client/ instead of https://amphp.org/artax/
 
 ## Getting Started
 
