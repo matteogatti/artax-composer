@@ -1,9 +1,9 @@
 <?php
 namespace ArtaxComposer\ServiceFactory;
 
+use Interop\Container\ContainerInterface;
 use Laminas\Cache\Storage\Adapter\AbstractAdapter as AbstractCacheAdapter;
-use Laminas\ServiceManager\FactoryInterface;
-use Laminas\ServiceManager\ServiceLocatorInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 use ArtaxComposer\Service\ArtaxService;
 
 class ArtaxServiceFactory implements FactoryInterface
@@ -42,18 +42,22 @@ class ArtaxServiceFactory implements FactoryInterface
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
+     * Create an object
      *
-     * @return ArtaxService
+     * @param  ContainerInterface $container
+     * @param  string $requestedName
+     * @param  null|array $options
+     * @return object
+     * @throws \ArtaxComposer\Exception\NotProvidedException
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         /** @var array $config */
-        $config = $serviceLocator->get('config');
+        $config = $container->get('config');
         $config = isset($config['artax_composer']) ? $config['artax_composer'] : [];
 
         /** @var AbstractCacheAdapter|null $cache */
-        $cache = $this->loadCache($config, $serviceLocator);
+        $cache = $this->loadCache($config, $container);
 
         return new ArtaxService($config, $cache);
     }
