@@ -20,7 +20,7 @@ return [
         /*
          * Cache could be:
          *  - null
-         *  - an instance of Zend\Cache\Storage\Adapter\AbstractAdapter
+         *  - an instance of Laminas\Cache\Storage\Adapter\AbstractAdapter
          *  - a string rapresenting a service to search inside the serviceLocator
          */
         'cache' => null,

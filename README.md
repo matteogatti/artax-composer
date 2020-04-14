@@ -31,7 +31,7 @@ By default ArtaxComposer come with this [configs](blob/master/config/module.conf
         /*
          * Cache could be:
          *  - null
-         *  - an instance of Zend\Cache\Storage\Adapter\AbstractAdapter
+         *  - an instance of Laminas\Cache\Storage\Adapter\AbstractAdapter
          *  - a string rapresenting a service to search inside the serviceLocator
          */
         'cache' => null,
@@ -167,10 +167,10 @@ Create `module/src/Application/Cache/RedisFactory.php`
 <?php
 namespace Application\Cache;
 
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Cache\Storage\Adapter\RedisOptions;
-use Zend\Cache\Storage\Adapter\Redis;
+use Laminas\ServiceManager\FactoryInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+use Laminas\Cache\Storage\Adapter\RedisOptions;
+use Laminas\Cache\Storage\Adapter\Redis;
 
 class RedisFactory implements FactoryInterface
 {

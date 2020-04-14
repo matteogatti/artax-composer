@@ -1,9 +1,9 @@
 <?php
 namespace ArtaxComposer\ServiceFactory;
 
-use Zend\Cache\Storage\Adapter\AbstractAdapter as AbstractCacheAdapter;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Laminas\Cache\Storage\Adapter\AbstractAdapter as AbstractCacheAdapter;
+use Laminas\ServiceManager\FactoryInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
 use ArtaxComposer\Service\ArtaxService;
 
 class ArtaxServiceFactory implements FactoryInterface
@@ -35,7 +35,7 @@ class ArtaxServiceFactory implements FactoryInterface
 
         // check if the cache is instance of the AbstractCacheAdapter
         if (!$cache instanceof AbstractCacheAdapter) {
-            throw new \UnexpectedValueException('Cache must be an instance of \Zend\Cache\Storage\Adapter\AbstractAdapter');
+            throw new \UnexpectedValueException('Cache must be an instance of \Laminas\Cache\Storage\Adapter\AbstractAdapter');
         }
 
         return $cache;

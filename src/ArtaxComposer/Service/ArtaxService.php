@@ -3,7 +3,7 @@ namespace ArtaxComposer\Service;
 
 use ArtaxComposer\Adapter\AdapterInterface;
 use ArtaxComposer\Exception\NotProvidedException;
-use Zend\Cache\Storage\Adapter\AbstractAdapter as AbstractCacheAdapter;
+use Laminas\Cache\Storage\Adapter\AbstractAdapter as AbstractCacheAdapter;
 
 class ArtaxService
 {
